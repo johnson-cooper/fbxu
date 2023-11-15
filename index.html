@@ -33,15 +33,24 @@
     <nav class="navbar navbar-dark bg-dark">
         <a class="navbar-brand" href="#">FBXu - FBX Model Viewer</a>
         <div class="form-inline">
-            <label for="modelInput" class="text-light mr-2">Load Model</label>
-            <input type="file" id="modelInput" accept=".fbx" class="btn btn-dark mr-2">
+            <div class="dropdown mr-2">
+                <button class="btn btn-dark dropdown-toggle" type="button" id="modelDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Load Model
+                </button>
+                <div class="dropdown-menu" aria-labelledby="modelDropdown">
+                    <label class="dropdown-item" for="modelInput">FBX Model</label>
+                    <input type="file" id="modelInput" accept=".fbx" class="btn btn-dark">
+                    <div class="dropdown-divider"></div>
+                    <label class="dropdown-item" for="modelInput2">GLTF Model</label>
+                    <input type="file" id="modelInput2" accept=".gltf" class="btn btn-dark">
+                </div>
+            </div>
             <label for="backgroundInput" class="text-light mr-2">Load Background</label>
             <input type="file" id="backgroundInput" accept=".png" class="btn btn-dark mr-2">
             <button class="btn btn-dark" onclick="clearBackground()">Clear Background</button>
             <button class="btn btn-dark" onclick="toggleSpin()">Toggle Spin</button>
             <button class="btn btn-dark" onclick="clearModel()">Clear Model</button>
             <button class="btn btn-dark" onclick="captureGif()">Capture GIF</button> <!-- Add button for GIF capture -->
-        
         </div>
     </nav>
     <div class="container">
@@ -52,7 +61,7 @@
                 <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r117/examples/js/controls/OrbitControls.js"></script>
                 <script src="https://cdn.jsdelivr.net/gh/imaya/zlib.js@0.3.0/bin/inflate.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/ccapture.js-npmfixed@1.1.0/build/CCapture.all.min.js"></script>
-                
+                <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
 
                 <script>
                     var container = document.getElementById('model-viewer-container');
@@ -66,6 +75,7 @@
                     container.appendChild(renderer.domElement);
 
                     var loader = new THREE.FBXLoader();
+                    var loader2 = new THREE.GLTFLoader();
                     var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
                     var currentModel = null;
@@ -75,6 +85,13 @@
                         var file = event.target.files[0];
                         if (file) {
                             loadModel(file);
+                        }
+                    });
+
+                    document.getElementById('modelInput2').addEventListener('change', function (event) {
+                        var file = event.target.files[0];
+                        if (file) {
+                            loadModel2(file);
                         }
                     });
 
@@ -103,6 +120,24 @@
                             }
                         );
                     }
+                    function loadModel2(file) {
+    loader2.load(
+        URL.createObjectURL(file),
+        function (gltf) {
+            if (currentModel) {
+                scene.remove(currentModel);
+            }
+            currentModel = gltf.scene; // Use gltf.scene as the model root
+            scene.add(gltf.scene);
+        },
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function (error) {
+            console.error('Error loading model', error);
+        }
+    );
+}
 
                     function clearBackground() {
         if (currentBackground) {
