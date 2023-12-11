@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bootstrap Color Generator</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: black;
+      background-color: #353535;
+    }
+    #colorBox {
+      width: 200px;
+      height: 200px;
+      border-radius: 10px;
+      margin: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .preview-element {
+      margin: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+    
+        
+  
+  <div class="container m-5 bg-light bg-gradient text-center">
+    <div class ="row preview-element">
+        <h1>Bootstrap Color Generator</h1>
+        <br>
+        <p class = "lead">Versions 4-5 </p>
+        <textarea id="cssCode" class="form-control mb-3" rows="12" readonly></textarea>
+        
+    </div>
+        
+
+    <div class="row align-items-center justify-content-center">
+    
+    <label for="colorGroup">Select a Color Group:</label>
+    <select id="colorGroup" class="form-control  ml-5 mr-5 mb-3">
+      <option value="primary">Primary</option>
+      <option value="secondary">Secondary</option>
+      <option value="custom">Custom (Specify Group Name)</option>
+    </select>
+    <label for="customGroupName">Custom Color Group Name:</label>
+    <input type="text" id="customGroupName" class="form-control ml-5 mr-5 mb-3" placeholder="e.g., my-custom-group" disabled>
+    
+    <div id="colorBox" class="color-box"></div>
+
+    <!-- Sample Bootstrap Elements for Preview -->
+    <button class="btn-primary preview-element" id="buttonPreview">Sample Button</button>
+    <div class="alert alert-primary preview-element" role="alert" id="alertPreview">Sample Alert</div>
+    <div class="badge badge-primary preview-element" id="badgePreview">Sample Badge</div>
+    <table class="table table-primary preview-element">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+            <th scope="col">Handle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1</th>
+            <td>Mark</td>
+            <td>Otto</td>
+            <td>@mdo</td>
+          </tr>
+          <tr>
+            <th scope="row">2</th>
+            <td>Jacob</td>
+            <td>Thornton</td>
+            <td>@fat</td>
+          </tr>
+          <tr>
+            <th scope="row">3</th>
+            <td>Larry</td>
+            <td>the Bird</td>
+            <td>@twitter</td>
+          </tr>
+        </tbody>
+      </table>
+<p>Developed by</p> <a href = "https://www.4-division.com">4-division</a>
+</div>
+
+</div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+  <script>
+    const colorBox = document.getElementById('colorBox');
+    const colorGroupSelect = document.getElementById('colorGroup');
+    const customGroupNameInput = document.getElementById('customGroupName');
+    const cssCodeTextarea = document.getElementById('cssCode');
+    const previewElements = document.querySelectorAll('.preview-element');
+
+    // Initialize Pickr color picker
+    const pickr = Pickr.create({
+      el: colorBox,
+      theme: 'nano',
+      default: '#3498db',
+      swatches: [
+        'rgba(244, 67, 54, 1)',
+        'rgba(233, 30, 99, 0.95)',
+        'rgba(156, 39, 176, 0.9)',
+        'rgba(103, 58, 183, 0.85)',
+        'rgba(63, 81, 181, 0.8)',
+        'rgba(33, 150, 243, 0.75)',
+        'rgba(3, 169, 244, 0.7)',
+        'rgba(0, 188, 212, 0.7)',
+        'rgba(0, 150, 136, 0.75)',
+        'rgba(76, 175, 80, 0.8)',
+        'rgba(139, 195, 74, 0.85)',
+        'rgba(205, 220, 57, 0.9)',
+        'rgba(255, 235, 59, 0.95)',
+        'rgba(255, 193, 7, 1)'
+      ],
+      components: {
+        preview: true,
+        opacity: true,
+        hue: true,
+        interaction: {
+          hex: true,
+          rgba: true,
+          hsla: true,
+          hsva: true,
+          cmyk: true,
+          input: true,
+          clear: true,
+          save: true
+        },
+      },
+    });
+
+    // Common list of utility classes
+    const utilityClasses = [
+      'alert',
+      'badge',
+      'bg',
+      'border',
+      'btn',
+      'btn-outline',
+      'list-group-item',
+      'table',
+      'text'
+    ];
+
+    colorGroupSelect.addEventListener('change', function() {
+      const selectedColorGroup = colorGroupSelect.value;
+      customGroupNameInput.disabled = selectedColorGroup !== 'custom';
+      if (selectedColorGroup !== 'custom') {
+        customGroupNameInput.value = '';
+      }
+    });
+
+    pickr.on('save', (color, instance) => {
+      const selectedColorGroup = colorGroupSelect.value;
+      const customGroupName = !customGroupNameInput.disabled ? customGroupNameInput.value.trim() : '';
+      const allClasses = customGroupName
+        ? utilityClasses.map(className => `${className}-${customGroupName}`)
+        : utilityClasses.map(className => selectedColorGroup === 'custom' ? className : `${className}-${selectedColorGroup}`);
+
+      const cssCode = allClasses.map(className => {
+        let css = `.${className} {`;
+
+        // Apply color to background-color and border-color
+        css += `
+          background-color: ${color.toHEXA().toString()} !important;
+          border-color: ${color.toHEXA().toString()} !important;
+        `;
+
+        // Apply color to text color for specific elements
+        if (className === 'btn' || className === 'alert' || className === 'badge') {
+          css += `color: initial !important;`;
+        }
+
+        css += `}`;
+        return css;
+      }).join('\n');
+
+      cssCodeTextarea.value = cssCode;
+
+      // Apply color to preview elements
+      previewElements.forEach(element => {
+        element.style.backgroundColor = color.toHEXA().toString();
+        element.style.borderColor = color.toHEXA().toString();
+
+        // Apply color to text color for specific elements
+        if (element.classList.contains('btn') || element.classList.contains('alert') || element.classList.contains('badge')) {
+          element.style.color = 'initial';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
